@@ -1,0 +1,28 @@
+{
+  "name": "accodeon",
+  "version": "0.0.1",
+  "description": "online JS editor created for teaching programming basics",
+  "dependencies": {
+    "angular": "^1.3.2",
+    "angular-animate": "^1.3.2",
+    "angular-aria": "^1.3.2",
+    "express": "^4.10.2",
+    "lodash": "^2.4.1",
+    "material-design": "^0.5.1",
+    "hammerjs": "^2.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathes/accodeon.git"
+  },
+  "author": "Patryk Hes, Marek Rusinowski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pathes/accodeon/issues"
+  },
+  "homepage": "https://github.com/pathes/accodeon"
+}
