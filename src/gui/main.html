@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>accodeon</title>
+    <link rel="stylesheet" href="vendor/material-design/angular-material.css">
+    <link rel="stylesheet" href="vendor/material-design/themes/indigo-theme.css">
+    <link rel="stylesheet" href="vendor/material-design/themes/yellow-theme.css">
+    <link rel="stylesheet" href="gui/main.css">
+</head>
+<body ng-app="accodeon" layout="horizontal">
+
+    <md-sidenav class="left-side md-sidenav-left md-whiteframe-z2"
+                layout="vertical"
+                md-is-locked-open="$media('md')">
+        <md-toolbar class="md-small-tall md-indigo-theme">
+            <h1 class="md-toolbar-tools">available files</h1>
+        </md-toolbar>
+
+        <md-content class="md-default-theme available-file-list"
+                    layout-padding
+                    layout="vertical"
+                    ng-controller="availableFilesCtrl">
+            <md-button ng-repeat="file in availableFiles">
+                <div>{{ file }}</div>
+            </md-button>
+        </md-content>
+    </md-sidenav>
+
+    <div class="right-side"
+         layout="vertical"
+         layout-fill role="main"
+         ng-controller="tabsCtrl">
+
+        <md-toolbar md-theme="default">
+            <h2 class="md-toolbar-tools">
+                <span>accodeon</span>
+            </h2>
+        </md-toolbar>
+
+        <md-tabs layout-fill md-selected="selectedIndex" class="md-indigo-theme file-tabs">
+            <md-tab ng-repeat="tab in tabs"
+                    md-on-select="announceSelected(tab)"
+                    md-on-deselect="announceDeselected(tab)"
+                    ng-disabled="tab.disabled"
+                    label="{{ tab.title }}">
+                <md-content class="md-default-theme">
+                    <div layout="row" class="layout-content">
+                        <textarea class="acc-file-content"
+                                  flex
+                                  ng-bind="tab.content"></textarea>
+                        <div class="acc-file-result"
+                             flex>code result</div>
+                    </div>
+                </md-content>
+            </md-tab>
+        </md-tabs>
+    </div>
+
+
+    <script src="vendor/angular/angular.js"></script>
+    <script src="vendor/angular-animate/angular-animate.js"></script>
+    <script src="vendor/angular-aria/angular-aria.js"></script>
+    <script src="vendor/hammerjs/hammer.js"></script>
+    <script src="vendor/material-design/angular-material.js"></script>
+    <script src="gui/main.js"></script>
+</body>
+</html>
