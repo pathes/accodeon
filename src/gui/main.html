@@ -61,9 +61,8 @@
                           mode: 'javascript',
                           firstLineNumber: 1,
                           onLoad: aceLoaded,
-                        }" ng-model="tab.content"></div>
-                        <div class="acc-file-result"
-                             flex>code result</div>
+                        }" ng-model="tab.code"></div>
+                        <iframe class="acc-file-result" ng-src="{{ tab.iframeSrc }}" flex sandbox="allow-scripts allow-popups"></iframe>
                     </div>
                 </md-content>
             </md-tab>

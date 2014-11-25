@@ -6,6 +6,11 @@ app.get('/', function (req, res) {
     res.sendFile('gui/main.html', { root: __dirname });
 });
 
+app.get('/code_template', function (req, res) {
+    res.sendFile('gui/code_eval_template.html', { root: __dirname });
+});
+
+
 app.get('/vendor/*', function (req, res) {
     res.sendFile(req.url, { root: __dirname });
 });

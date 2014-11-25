@@ -1,6 +1,10 @@
 (function (angular) {
 
     angular.module('accodeon', ['ngMaterial', 'ui.ace'])
+        .config(function ($sceProvider) {
+            $sceProvider.enabled(false);
+            // TODO: figure out how to do it better
+        })
 
         .controller('availableFilesCtrl', function ($scope) {
             var availableFilesMock = [
@@ -11,39 +15,30 @@
             $scope.availableFiles = availableFilesMock;
         })
 
-        .controller('tabsCtrl', function ($scope) {
+        .controller('tabsCtrl', function ($scope, $http, $q) {
             var tabs = [
-                {title: 'One', content: "Tabs will become paginated if there isn't enough room for them."},
-                {title: 'Two', content: "You can swipe left and right on a mobile device to change tabs."},
                 {
-                    title: 'Three',
-                    content: "You can bind the selected tab via the selected attribute on the md-tabs element."
-                },
-                {title: 'Four', content: "If you set the selected tab binding to -1, it will leave no tab selected."},
-                {title: 'Five', content: "If you remove a tab, it will try to select a new one."},
-                {
-                    title: 'Six',
-                    content: "There's an ink bar that follows the selected tab, you can turn it off if you want.",
+                    title: 'One',
+                    code: 'console.log("Tab 1");',
+                    iframeSrc: 'data:text/plain;utf8,Code result 1'
                 },
                 {
-                    title: 'Seven',
-                    content: "If you set ng-disabled on a tab, it becomes unselectable. If the currently selected tab becomes disabled, it will try to select the next tab."
+                    title: 'Two',
+                    code: 'console.log("Tab 2");',
+                    iframeSrc: 'data:text/plain;utf8,Code result 2'
                 },
-                {
-                    title: 'Eight',
-                    content: "If you look at the source, you're using tabs to look at a demo for tabs. Recursion!"
-                },
-                {
-                    title: 'Nine',
-                    content: "If you set md-theme=\"green\" on the md-tabs element, you'll get green tabs."
-                },
-                {
-                    title: 'Ten',
-                    content: "If you're still reading this, you should just go check out the API docs for tabs!"
-                }
             ];
 
-            $scope.selectedIndex = 2;
+            $q.all([
+                $http.get('code_template'),
+                $http.get('gui/code_eval_library.js')
+            ]).then (function (codes) {
+                var libraryDataURI = 'data:text/javascript;utf8;base64,' + btoa(codes[1].data);
+                $scope.codeTemplate = codes[0].data.replace(/\{\{ *LIBRARY *\}\}/, libraryDataURI);
+            });
+
+            $scope.codeTemplate = null;
+            $scope.selectedIndex = 0;
             $scope.tabs = tabs;
 
             $scope.announceSelected = function (tab) {
@@ -56,7 +51,7 @@
 
             $scope.addTab = function (title, view) {
                 view = view || title + " Content View";
-                tabs.push({title: title, content: view, disabled: false});
+                tabs.push({title: title, code: view, iframeSrc: 'data:text/plain;utf8,Code result', disabled: false});
             };
 
             $scope.removeTab = function (tab) {
@@ -67,8 +62,33 @@
                 $scope.tabs.splice(index, 0);
             };
 
+            $scope.execCode = function (tab) {
+                console.log("execing code");
+                if ($scope.codeTemplate === null) {
+                    console.warning("No code template loaded, cannot exec code");
+                    return;
+                }
+                var userCode = 'function userFunction (console, canvas) {\n' + tab.code + ";}";
+                var userCodeDataURI = 'data:text/javascript;utf8;base64,' + btoa(userCode);
+                var wholeHtml = $scope.codeTemplate.replace(/\{\{ *USER_CODE *\}\}/, userCodeDataURI);
+                wholeHtml = wholeHtml.replace(/\{\{ *RANDOM_TOKEN *\}\}/, Math.random().toString(36).substring(7));
+                tab.iframeSrc = 'data:text/html;utf8;base64,' + btoa(wholeHtml);
+            };
+
             $scope.aceLoaded = function(editor) {
-                // TODO: configure editor
+                editor.commands.addCommand({
+                    name: "execjs",
+                    bindKey: {
+                        win: "Ctrl-Enter",
+                        mac: "Command-Enter"
+                    },
+                    exec: function(editor) {
+                        $scope.$apply(function() {
+                            $scope.execCode($scope.tabs[$scope.selectedIndex]);
+                        });
+                    },
+                    readOnly: true
+                });
             };
         });
 
