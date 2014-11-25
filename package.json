@@ -8,9 +8,9 @@
     "angular-aria": "^1.3.2",
     "express": "^4.10.2",
     "lodash": "^2.4.1",
-    "material-design": "^0.5.1",
     "hammerjs": "^2.0.4"
   },
+  "start": "node ./src/server.js",
   "devDependencies": {},
   "scripts": {
     "test": "test"
