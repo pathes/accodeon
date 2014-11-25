@@ -8,14 +8,21 @@
 
         .controller('availableFilesCtrl', function ($scope) {
             var availableFilesMock = [
-                'foo',
-                'bar',
-                'baz'
+                {
+                    name: 'foo',
+                    author: 'Krupiński',
+                    date: new Date('2014-11-25T14:00:00.000Z')
+                },
+                {
+                    name: 'bar',
+                    author: 'Gumiela',
+                    date: new Date('2014-11-22T11:00:00.000Z')
+                }
             ];
             $scope.availableFiles = availableFilesMock;
         })
-
-        .controller('tabsCtrl', function ($scope, $http, $q) {
+        
+        .controller('tabsCtrl', function ($scope, $http, $q, $mdSidenav) {
             var tabs = [
                 {
                     title: 'One',
@@ -89,6 +96,10 @@
                     },
                     readOnly: true
                 });
+            };
+
+            $scope.toggleAvailableFiles = function () {
+                $mdSidenav('available-files').toggle();
             };
         });
 

@@ -20,7 +20,7 @@
 <body ng-app="accodeon" layout="horizontal">
     <md-sidenav class="left-side md-sidenav-left md-whiteframe-z2"
                 layout="vertical"
-                is-locked-open="$media('md')">
+                component-id="available-files">
         <md-toolbar class="md-small-tall md-indigo-theme">
             <h1 class="md-toolbar-tools">available files</h1>
         </md-toolbar>
@@ -30,7 +30,8 @@
                     layout="vertical"
                     ng-controller="availableFilesCtrl">
             <md-button ng-repeat="file in availableFiles" aria-label="{{ file }}">
-                <div>{{ file }}</div>
+                <div>{{ file.name }}</div>
+                <div><small>{{ file.author }} &mdash; {{ file.date | date:'yyyy-MM-dd HH:mm:ss' }}</small></div>
             </md-button>
         </md-content>
     </md-sidenav>
@@ -41,9 +42,17 @@
          ng-controller="tabsCtrl">
 
         <md-toolbar md-theme="default">
-            <h2 class="md-toolbar-tools">
-                <span>accodeon</span>
-            </h2>
+            <div layout="row">
+                <h2 flex class="md-toolbar-tools">
+                    <span>accodeon</span>
+                </h2>
+                <div flex layout="column" class="layout-content">
+                    <md-button aria-label="New">New</md-button>
+                    <md-button aria-label="Open"
+                               ng-click="toggleAvailableFiles()">Open</md-button>
+                    <md-button aria-label="Save">Save</md-button>
+                </div>
+            </div>
         </md-toolbar>
 
         <md-tabs layout-fill selected="selectedIndex" class="md-indigo-theme file-tabs">
