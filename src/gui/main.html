@@ -38,10 +38,10 @@
             </h2>
         </md-toolbar>
 
-        <md-tabs layout-fill md-selected="selectedIndex" class="md-indigo-theme file-tabs">
+        <md-tabs layout-fill selected="selectedIndex" class="md-indigo-theme file-tabs">
             <md-tab ng-repeat="tab in tabs"
-                    md-on-select="announceSelected(tab)"
-                    md-on-deselect="announceDeselected(tab)"
+                    on-select="announceSelected(tab)"
+                    on-deselect="announceDeselected(tab)"
                     ng-disabled="tab.disabled"
                     label="{{ tab.title }}">
                 <md-content class="md-default-theme">
