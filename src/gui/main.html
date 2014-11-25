@@ -12,7 +12,7 @@
 
     <md-sidenav class="left-side md-sidenav-left md-whiteframe-z2"
                 layout="vertical"
-                md-is-locked-open="$media('md')">
+                is-locked-open="$media('md')">
         <md-toolbar class="md-small-tall md-indigo-theme">
             <h1 class="md-toolbar-tools">available files</h1>
         </md-toolbar>
@@ -21,7 +21,7 @@
                     layout-padding
                     layout="vertical"
                     ng-controller="availableFilesCtrl">
-            <md-button ng-repeat="file in availableFiles">
+            <md-button ng-repeat="file in availableFiles" aria-label="{{ file }}">
                 <div>{{ file }}</div>
             </md-button>
         </md-content>
