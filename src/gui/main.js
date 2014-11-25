@@ -1,6 +1,6 @@
 (function (angular) {
 
-    angular.module('accodeon', ['ngMaterial'])
+    angular.module('accodeon', ['ngMaterial', 'ui.ace'])
 
         .controller('availableFilesCtrl', function ($scope) {
             var availableFilesMock = [
@@ -23,7 +23,7 @@
                 {title: 'Five', content: "If you remove a tab, it will try to select a new one."},
                 {
                     title: 'Six',
-                    content: "There's an ink bar that follows the selected tab, you can turn it off if you want."
+                    content: "There's an ink bar that follows the selected tab, you can turn it off if you want.",
                 },
                 {
                     title: 'Seven',
@@ -43,11 +43,16 @@
                 }
             ];
 
-            $scope.tabs = tabs;
             $scope.selectedIndex = 2;
+            $scope.tabs = tabs;
 
-            $scope.announceSelected = announceSelected;
-            $scope.announceDeselected = announceDeselected;
+            $scope.announceSelected = function (tab) {
+                console.log("select tab", $scope.tabs.indexOf(tab));
+            };
+
+            $scope.announceDeselected = function (tab) {
+                console.log("deselected tab", $scope.tabs.indexOf(tab));
+            };
 
             $scope.addTab = function (title, view) {
                 view = view || title + " Content View";
@@ -55,21 +60,16 @@
             };
 
             $scope.removeTab = function (tab) {
-                for (var j = 0; j < tabs.length; j++) {
-                    if (tab.title == tabs[j].title) {
-                        $scope.tabs.splice(j, 1);
-                        break;
-                    }
+                var index = $scope.tabs.indexOf(tab);
+                if (index === -1) {
+                    throw new Error("Couldn't find tab requested for removal");
                 }
+                $scope.tabs.splice(index, 0);
             };
 
-            function announceDeselected(tab) {
-                $scope.farewell = 'Goodbye ' + tab.title + '!';
-            }
-
-            function announceSelected(tab) {
-                $scope.greeting = 'Hello ' + tab.title + '!';
-            }
+            $scope.aceLoaded = function(editor) {
+                // TODO: configure editor
+            };
         });
 
 })(angular);

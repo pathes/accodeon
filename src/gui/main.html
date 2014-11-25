@@ -7,9 +7,17 @@
     <link rel="stylesheet" href="vendor/material-design/themes/indigo-theme.css">
     <link rel="stylesheet" href="vendor/material-design/themes/yellow-theme.css">
     <link rel="stylesheet" href="gui/main.css">
+
+    <script src="vendor/ace/src-min-noconflict/ace.js"></script>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="vendor/angular-animate/angular-animate.js"></script>
+    <script src="vendor/angular-aria/angular-aria.js"></script>
+    <script src="vendor/hammerjs/hammer.js"></script>
+    <script src="vendor/material-design/angular-material.js"></script>
+    <script src="vendor/angular-ui-ace/ui-ace.js"></script>
+    <script src="gui/main.js"></script>
 </head>
 <body ng-app="accodeon" layout="horizontal">
-
     <md-sidenav class="left-side md-sidenav-left md-whiteframe-z2"
                 layout="vertical"
                 md-is-locked-open="$media('md')">
@@ -45,10 +53,15 @@
                     ng-disabled="tab.disabled"
                     label="{{ tab.title }}">
                 <md-content class="md-default-theme">
-                    <div layout="row" class="layout-content">
-                        <textarea class="acc-file-content"
-                                  flex
-                                  ng-bind="tab.content"></textarea>
+                    <div layout="row" flex class="layout-content">
+                        <div class="acc-file-content" flex ui-ace="{
+                          useWrapMode : true,
+                          showGutter: true,
+                          theme:'chrome',
+                          mode: 'javascript',
+                          firstLineNumber: 1,
+                          onLoad: aceLoaded,
+                        }" ng-model="tab.content"></div>
                         <div class="acc-file-result"
                              flex>code result</div>
                     </div>
@@ -56,13 +69,5 @@
             </md-tab>
         </md-tabs>
     </div>
-
-
-    <script src="vendor/angular/angular.js"></script>
-    <script src="vendor/angular-animate/angular-animate.js"></script>
-    <script src="vendor/angular-aria/angular-aria.js"></script>
-    <script src="vendor/hammerjs/hammer.js"></script>
-    <script src="vendor/material-design/angular-material.js"></script>
-    <script src="gui/main.js"></script>
 </body>
 </html>
