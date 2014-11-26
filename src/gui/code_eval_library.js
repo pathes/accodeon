@@ -30,6 +30,14 @@ function main(argument) {
     }
 
     var console = Console('#console');
+    var canvas = document.querySelector('#canvas');
+    if (!canvas) {
+        throw new Error("Couldn't find canvas element");
+    }
+    var ctx = canvas.getContext('2d');
+    if (!ctx) {
+        throw new Error("Cannot get canvas context");
+    }
 
-    userFunction(console);
+    userFunction(console, ctx);
 }
