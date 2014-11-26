@@ -14,7 +14,7 @@ var Console = function (consoleSelector) {
     self.log = function () {
         var outputString = [];
         for (var i = 0; i < arguments.length; ++i) {
-            outputString.push(arguments[i].toString());
+            outputString.push(arguments[i] + "");
         }
         outputString = outputString.join(' ') + '\n';
         self.$elem.appendChild(document.createTextNode(outputString));
@@ -38,6 +38,10 @@ function main(argument) {
     if (!ctx) {
         throw new Error("Cannot get canvas context");
     }
+
+    window.onerror = function (error, url, line, col, errorObj) {
+        console.log("line:", line - 6, "col:", col, "Error:", errorObj.message);
+    };
 
     userFunction(console, ctx);
 }

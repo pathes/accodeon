@@ -40,8 +40,7 @@
                 $http.get('code_template'),
                 $http.get('gui/code_eval_library.js')
             ]).then (function (codes) {
-                var libraryDataURI = 'data:text/javascript;utf8;base64,' + btoa(codes[1].data);
-                $scope.codeTemplate = codes[0].data.replace(/\{\{ *LIBRARY *\}\}/, libraryDataURI);
+                $scope.codeTemplate = codes[0].data.replace(/\{\{ *LIBRARY *\}\}/, codes[1].data);
             });
 
             $scope.codeTemplate = null;
@@ -76,8 +75,7 @@
                     return;
                 }
                 var userCode = 'function userFunction (console, canvas) {\n' + tab.code + ";}";
-                var userCodeDataURI = 'data:text/javascript;utf8;base64,' + btoa(userCode);
-                var wholeHtml = $scope.codeTemplate.replace(/\{\{ *USER_CODE *\}\}/, userCodeDataURI);
+                var wholeHtml = $scope.codeTemplate.replace(/\{\{ *USER_CODE *\}\}/, userCode);
                 wholeHtml = wholeHtml.replace(/\{\{ *RANDOM_TOKEN *\}\}/, Math.random().toString(36).substring(7));
                 tab.iframeSrc = 'data:text/html;utf8;base64,' + btoa(wholeHtml);
             };
