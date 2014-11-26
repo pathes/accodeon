@@ -22,19 +22,24 @@
             $scope.availableFiles = availableFilesMock;
         })
         
-        .controller('tabsCtrl', function ($scope, $http, $q, $mdSidenav) {
-            var tabs = [
-                {
-                    title: 'One',
-                    code: 'console.log("Tab 1");',
-                    iframeSrc: 'data:text/plain;utf8,Code result 1'
-                },
-                {
-                    title: 'Two',
-                    code: 'console.log("Tab 2");',
-                    iframeSrc: 'data:text/plain;utf8,Code result 2'
-                },
-            ];
+        .controller('tabsCtrl', function ($scope, $http, $q, $mdSidenav, $interval) {
+            var tabs = localStorage.getItem('tabs');
+            if (tabs) {
+                tabs = JSON.parse(tabs);
+            } else {
+                tabs = [
+                    {
+                        title: 'One',
+                        code: 'console.log("Tab 1");',
+                        iframeSrc: 'data:text/plain;utf8,Code result 1'
+                    },
+                    {
+                        title: 'Two',
+                        code: 'console.log("Tab 2");',
+                        iframeSrc: 'data:text/plain;utf8,Code result 2'
+                    },
+                ];
+            }
 
             $q.all([
                 $http.get('code_template'),
@@ -69,7 +74,7 @@
             };
 
             $scope.execCode = function (tab) {
-                console.log("execing code");
+                $scope.saveTabsToLocal();
                 if ($scope.codeTemplate === null) {
                     console.warning("No code template loaded, cannot exec code");
                     return;
@@ -98,6 +103,16 @@
 
             $scope.toggleAvailableFiles = function () {
                 $mdSidenav('available-files').toggle();
+            };
+
+            $scope.saveTabsToLocal = function () {
+                localStorage.setItem("tabs", JSON.stringify($scope.tabs));
+            };
+
+            $interval($scope.saveTabsToLocal, 1000 * 60);
+
+            window.onunload = function () {
+                $scope.$apply($scope.saveTabsToLocal);
             };
         });
 
