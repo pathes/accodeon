@@ -39,3 +39,11 @@ md-tabs.file-tabs {
     }
 }
 
+.right-side {
+    md-toolbar {
+        button {
+            height: 55px;
+            vertical-align: middle;
+        }
+    }
+}

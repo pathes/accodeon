@@ -1,0 +1,20 @@
+<md-dialog aria-label="Save project">
+    <md-content>
+        <md-subheader class="md-sticky-no-effect">Save project</md-subheader>
+        <form style="padding: 20px;">
+            <div class="row">
+                <md-text-float label="Title" ng-model="title"></md-text-float>
+                <md-text-float label="Username" ng-model="user"></md-text-float>
+            </div>
+        </form>
+    </md-content>
+    <div class="md-actions" layout="row">
+        <span flex></span>
+        <md-button ng-click="cancel()" aria-label="Cancel">
+            Cancel
+        </md-button>
+        <md-button ng-click="save()" class="md-primary" aria-label="Save">
+            Save
+        </md-button>
+    </div>
+</md-dialog>

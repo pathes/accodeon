@@ -6,6 +6,14 @@
             // TODO: figure out how to do it better
         })
 
+        .service('filesService', function () {
+            return {
+                saveFile: function saveFile(title, user, code) {
+                    console.log('saved file ' + title + ' ' + user + ' ' + code);
+                }
+            };
+        })
+
         .controller('availableFilesCtrl', function ($scope) {
             var availableFilesMock = [
                 {
@@ -21,8 +29,8 @@
             ];
             $scope.availableFiles = availableFilesMock;
         })
-        
-        .controller('tabsCtrl', function ($scope, $http, $q, $mdSidenav, $interval) {
+
+        .controller('tabsCtrl', function ($scope, $http, $q, $mdDialog, $mdSidenav, $interval, filesService) {
             var tabs = localStorage.getItem('tabs');
             if (tabs) {
                 tabs = JSON.parse(tabs);
@@ -42,7 +50,7 @@
             }
 
             $q.all([
-                $http.get('code_template'),
+                $http.get('gui/code_eval_template.html'),
                 $http.get('gui/code_eval_library.js')
             ]).then (function (codes) {
                 $scope.codeTemplate = codes[0].data.replace(/\{\{ *LIBRARY *\}\}/, codes[1].data);
@@ -113,6 +121,32 @@
 
             window.onunload = function () {
                 $scope.$apply($scope.saveTabsToLocal);
+            };
+
+            $scope.saveTab = function (ev) {
+                function getCurrentTabContent() {
+                    return $scope.tabs[$scope.selectedIndex];
+                }
+                $mdDialog.show({
+                    controller: function ($scope, $mdDialog) {
+                        $scope.cancel = function () {
+                            $mdDialog.cancel();
+                        };
+                        $scope.save = function () {
+                            var currentTab = getCurrentTabContent();
+                            // If title or user is omitted, do nothing.
+                            if (!$scope.title || !$scope.user) {
+                                return;
+                            }
+                            $mdDialog.hide();
+                            currentTab.title = $scope.title;
+                            currentTab.user = $scope.user;
+                            filesService.saveFile($scope.title, $scope.user, currentTab.code);
+                        };
+                    },
+                    templateUrl: 'gui/save-dialog.html',
+                    targetEvent: ev
+                });
             };
         });
 
