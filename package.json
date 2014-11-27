@@ -8,7 +8,9 @@
     "angular-aria": "^1.3.2",
     "express": "^4.10.2",
     "lodash": "^2.4.1",
-    "hammerjs": "^2.0.4"
+    "hammerjs": "^2.0.4",
+    "node-localstorage": "^0.3.4",
+    "body-parser": "^1.9.3"
   },
   "start": "node ./src/server.js",
   "devDependencies": {},
