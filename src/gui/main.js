@@ -70,7 +70,7 @@
 
             $scope.addTab = function (title, view) {
                 view = view || title + " Content View";
-                tabs.push({title: title, code: view, iframeSrc: 'data:text/plain;utf8,Code result', disabled: false});
+                tabs.push({title: title, code: view, iframeSrc: 'data:text/plain;utf8,', disabled: false});
             };
 
             $scope.removeTab = function (tab) {
@@ -83,14 +83,17 @@
 
             $scope.execCode = function (tab) {
                 $scope.saveTabsToLocal();
-                if ($scope.codeTemplate === null) {
-                    console.warning("No code template loaded, cannot exec code");
+                if (!$scope.codeTemplate) {
+                    console.warn("No code template loaded, cannot exec code");
                     return;
                 }
                 var userCode = 'function userFunction (console, canvas) {\n' + tab.code + ";}";
                 var wholeHtml = $scope.codeTemplate.replace(/\{\{ *USER_CODE *\}\}/, userCode);
-                wholeHtml = wholeHtml.replace(/\{\{ *RANDOM_TOKEN *\}\}/, Math.random().toString(36).substring(7));
+                var token = Math.random().toString(36).substring(7);
+                wholeHtml = wholeHtml.replace(/\{\{ *RANDOM_TOKEN *\}\}/, token);
                 tab.iframeSrc = 'data:text/html;utf8;base64,' + btoa(wholeHtml);
+                tab.token = token;
+                tab.log = '';
             };
 
             $scope.aceLoaded = function(editor) {
@@ -114,13 +117,28 @@
             };
 
             $scope.saveTabsToLocal = function () {
-                localStorage.setItem("tabs", JSON.stringify($scope.tabs));
+                $scope.tabs.forEach(function (tab) {
+                    delete tab.token;
+                    delete tab.log;
+                    delete tab.iframeSrc;
+                });
+                localStorage.setItem('tabs', JSON.stringify($scope.tabs));
             };
 
             $interval($scope.saveTabsToLocal, 1000 * 60);
 
             window.onunload = function () {
                 $scope.$apply($scope.saveTabsToLocal);
+            };
+
+            window.onmessage = function (e) {
+                tabs.forEach(function tabMessage(tab) {
+                    if (tab.token == e.data.token) {
+                        $scope.$apply(function () {
+                            tab.log += e.data.message + '\n';
+                        });
+                    }
+                });
             };
 
             $scope.saveTab = function (ev) {

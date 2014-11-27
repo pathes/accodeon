@@ -1,23 +1,18 @@
 window.onload = main;
 
-var Console = function (consoleSelector) {
+var Console = function () {
     'use strict';
 
-    var self = {
-        $elem: document.querySelector(consoleSelector)
-    };
-
-    if (!self.$elem) {
-        throw new Error("Requested element '" + consoleSelector + "' doesn't exists");
-    }
-
     self.log = function () {
-        var outputString = [];
+        var messages = [];
         for (var i = 0; i < arguments.length; ++i) {
-            outputString.push(arguments[i] + "");
+            messages.push(arguments[i] + '');
         }
-        outputString = outputString.join(' ') + '\n';
-        self.$elem.appendChild(document.createTextNode(outputString));
+        var message = messages.join(' ');
+        window.top.postMessage({
+            token: document.getElementById('token').getAttribute('value'),
+            message: message
+        }, '*');
     };
 
     return self;
@@ -25,11 +20,11 @@ var Console = function (consoleSelector) {
 
 function main(argument) {
     'use strict';
-    if (userFunction === undefined) {
-        throw new Error("No user defined fnction");
+    if (userFunction == null) {
+        throw new Error("No user defined function");
     }
 
-    var console = Console('#console');
+    var console = Console();
     var canvas = document.querySelector('#canvas');
     if (!canvas) {
         throw new Error("Couldn't find canvas element");
