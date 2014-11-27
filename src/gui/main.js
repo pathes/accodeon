@@ -6,47 +6,55 @@
             // TODO: figure out how to do it better
         })
 
-        .service('filesService', function () {
-            return {
-                saveFile: function saveFile(title, user, code) {
-                    console.log('saved file ' + title + ' ' + user + ' ' + code);
+        .service('filesService', function ($http) {
+            // filesService is used here as the bridge between availableFilesCtrl and tabsCtrl
+            // TODO rearrange it better
+            var tabConstructor = function () {};
+
+            var methods = {
+                saveFile: function saveFile(name, user, content) {
+                    $http.post('/file', {
+                        user: user,
+                        name: name,
+                        content: content
+                    });
+                },
+                loadFileList: function loadFileList(callback) {
+                    $http.get('/file').success(callback);
+                },
+                registerTabConstructor: function registerTabConstructor(_tabConstructor_) {
+                    tabConstructor = _tabConstructor_;
+                },
+                getFile: function getFile(fileMeta) {
+                    $http.get('/file/' + fileMeta.id).success(function (data) {
+                        tabConstructor(data, fileMeta);
+                    });
                 }
             };
+            return methods;
         })
 
-        .controller('availableFilesCtrl', function ($scope) {
-            var availableFilesMock = [
-                {
-                    name: 'foo',
-                    author: 'Krupiński',
-                    date: new Date('2014-11-25T14:00:00.000Z')
-                },
-                {
-                    name: 'bar',
-                    author: 'Gumiela',
-                    date: new Date('2014-11-22T11:00:00.000Z')
-                }
-            ];
-            $scope.availableFiles = availableFilesMock;
+        .controller('availableFilesCtrl', function ($scope, $interval, filesService) {
+            $scope.availableFiles = [];
+            var getFileList = function () {
+                filesService.loadFileList(function (fileList) {
+                    $scope.availableFiles = fileList;
+                });
+            };
+
+            $scope.getFile = filesService.getFile;
+
+            $interval(getFileList, 30 * 1000);
+            getFileList();
         })
 
         .controller('tabsCtrl', function ($scope, $http, $q, $mdDialog, $mdSidenav, $interval, filesService) {
-            var tabs = localStorage.getItem('tabs');
-            if (tabs) {
-                tabs = JSON.parse(tabs);
+            var storedTabs = localStorage.getItem('tabs');
+            var tabs;
+            if (storedTabs) {
+                tabs = JSON.parse(storedTabs);
             } else {
-                tabs = [
-                    {
-                        title: 'One',
-                        code: 'console.log("Tab 1");',
-                        iframeSrc: 'data:text/plain;utf8,Code result 1'
-                    },
-                    {
-                        title: 'Two',
-                        code: 'console.log("Tab 2");',
-                        iframeSrc: 'data:text/plain;utf8,Code result 2'
-                    },
-                ];
+                tabs = [];
             }
 
             $q.all([
@@ -68,10 +76,14 @@
                 console.log("deselected tab", $scope.tabs.indexOf(tab));
             };
 
-            $scope.addTab = function (title, view) {
-                view = view || title + " Content View";
-                tabs.push({title: title, code: view, iframeSrc: 'data:text/plain;utf8,', disabled: false});
+            $scope.addTab = function (name, content) {
+                content = content || name + " Content View";
+                tabs.push({name: name, content: content, iframeSrc: 'data:text/plain;utf8,', disabled: false});
             };
+
+            filesService.registerTabConstructor(function (data, fileMeta) {
+                $scope.addTab(fileMeta.name, data);
+            });
 
             $scope.removeTab = function (tab) {
                 var index = $scope.tabs.indexOf(tab);
@@ -87,7 +99,7 @@
                     console.warn("No code template loaded, cannot exec code");
                     return;
                 }
-                var userCode = 'function userFunction (console, canvas) {\n' + tab.code + ";}";
+                var userCode = 'function userFunction (console, canvas) {\n' + tab.content + ";}";
                 var wholeHtml = $scope.codeTemplate.replace(/\{\{ *USER_CODE *\}\}/, userCode);
                 var token = Math.random().toString(36).substring(7);
                 wholeHtml = wholeHtml.replace(/\{\{ *RANDOM_TOKEN *\}\}/, token);
@@ -153,13 +165,13 @@
                         $scope.save = function () {
                             var currentTab = getCurrentTabContent();
                             // If title or user is omitted, do nothing.
-                            if (!$scope.title || !$scope.user) {
+                            if (!$scope.name || !$scope.user) {
                                 return;
                             }
                             $mdDialog.hide();
-                            currentTab.title = $scope.title;
+                            currentTab.name = $scope.name;
                             currentTab.user = $scope.user;
-                            filesService.saveFile($scope.title, $scope.user, currentTab.code);
+                            filesService.saveFile($scope.name, $scope.user, currentTab.content);
                         };
                     },
                     templateUrl: 'gui/save-dialog.html',

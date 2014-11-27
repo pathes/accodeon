@@ -29,9 +29,10 @@
                     layout-padding
                     layout="vertical"
                     ng-controller="availableFilesCtrl">
-            <md-button ng-repeat="file in availableFiles" aria-label="{{ file }}">
+            <md-button ng-repeat="file in availableFiles" aria-label="{{ file }}"
+                       ng-click="getFile(file)">
                 <div>{{ file.name }}</div>
-                <div><small>{{ file.author }} &mdash; {{ file.date | date:'yyyy-MM-dd HH:mm:ss' }}</small></div>
+                <div><small>{{ file.user }} &mdash; {{ file.timestamp | date:'yyyy-MM-dd HH:mm:ss' }}</small></div>
             </md-button>
         </md-content>
     </md-sidenav>
@@ -62,7 +63,7 @@
                     on-select="announceSelected(tab)"
                     on-deselect="announceDeselected(tab)"
                     ng-disabled="tab.disabled"
-                    label="{{ tab.title }}">
+                    label="{{ tab.name }}">
                 <md-content class="md-default-theme">
                     <div layout="row" flex class="layout-content">
                         <div class="acc-file-content" flex ui-ace="{
@@ -72,7 +73,7 @@
                           mode: 'javascript',
                           firstLineNumber: 1,
                           onLoad: aceLoaded,
-                        }" ng-model="tab.code"></div>
+                        }" ng-model="tab.content"></div>
                         <div layout="vertical" flex class="layout-content">
                             <iframe frameborder="0" class="acc-file-result" ng-src="{{ tab.iframeSrc }}" flex sandbox="allow-scripts allow-popups"></iframe>
                             <pre class="acc-file-console" ng-class="{'acc-file-console-shown': consoleShown}" flex>{{ tab.log }}</pre>

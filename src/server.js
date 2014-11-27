@@ -2,6 +2,7 @@ const _ = require('lodash');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
 const LocalStorage = require('node-localstorage').LocalStorage;
 filesStorge = new LocalStorage('./files_storage');
 
@@ -45,7 +46,7 @@ app.post('/file', function (req, res) {
     }
     data.id = crypto.randomBytes(20).toString('hex');
     data.timestamp = new Date().getTime();
-    var meta = getMeta(data);
+    var meta = getFileMeta(data);
     filesCache.push(meta);
     res.send(meta);
     filesStorge.setItem(data.id, JSON.stringify(data));
@@ -65,7 +66,7 @@ function prepareFilesCache() {
 
     for (i = 0; i < filesStorge.length; ++i) {
         content = filesStorge.getItem(filesStorge.key(i));
-        filesCache.push(getMeta(JSON.parse(content)));
+        filesCache.push(getFileMeta(JSON.parse(content)));
     }
     return filesCache;
 }
