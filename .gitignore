@@ -30,3 +30,4 @@ node_modules
 .idea
 
 bower_components/
+files_storage/
