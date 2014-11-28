@@ -34,6 +34,14 @@
             return methods;
         })
 
+        .service('utilsService', function () {
+            return {
+                generateToken: function generateToken() {
+                    return Math.random().toString(36).substring(7);
+                }
+            };
+        })
+
         .controller('availableFilesCtrl', function ($scope, $interval, filesService) {
             $scope.availableFiles = [];
             var getFileList = function () {
@@ -44,17 +52,18 @@
 
             $scope.getFile = filesService.getFile;
 
-            $interval(getFileList, 30 * 1000);
+            $interval(getFileList, 10 * 1000);
             getFileList();
         })
 
-        .controller('tabsCtrl', function ($scope, $http, $q, $mdDialog, $mdSidenav, $interval, filesService) {
+        .controller('tabsCtrl', function ($scope, $http, $q, $mdDialog, $mdSidenav, $interval, filesService,
+                                          utilsService) {
             var storedTabs = localStorage.getItem('tabs');
-            var tabs;
+
             if (storedTabs) {
-                tabs = JSON.parse(storedTabs);
+                $scope.tabs = JSON.parse(storedTabs);
             } else {
-                tabs = [];
+                $scope.tabs = [];
             }
 
             $q.all([
@@ -66,7 +75,6 @@
 
             $scope.codeTemplate = null;
             $scope.selectedIndex = 0;
-            $scope.tabs = tabs;
 
             $scope.announceSelected = function (tab) {
                 console.log("select tab", $scope.tabs.indexOf(tab));
@@ -78,7 +86,13 @@
 
             $scope.addTab = function (name, content) {
                 content = content || name + " Content View";
-                tabs.push({name: name, content: content, iframeSrc: 'data:text/plain;utf8,', disabled: false});
+                $scope.tabs.push({
+                    name: name,
+                    content: content,
+                    iframeSrc: 'data:text/plain;utf8,',
+                    disabled: false,
+                    token: utilsService.generateToken(),
+                });
             };
 
             filesService.registerTabConstructor(function (data, fileMeta) {
@@ -90,7 +104,7 @@
                 if (index === -1) {
                     throw new Error("Couldn't find tab requested for removal");
                 }
-                $scope.tabs.splice(index, 0);
+                $scope.tabs.splice(index, 1);
             };
 
             $scope.execCode = function (tab) {
@@ -101,7 +115,7 @@
                 }
                 var userCode = 'function userFunction (console, canvas) {\n' + tab.content + ";}";
                 var wholeHtml = $scope.codeTemplate.replace(/\{\{ *USER_CODE *\}\}/, userCode);
-                var token = Math.random().toString(36).substring(7);
+                var token = utilsService.generateToken();
                 wholeHtml = wholeHtml.replace(/\{\{ *RANDOM_TOKEN *\}\}/, token);
                 tab.iframeSrc = 'data:text/html;utf8;base64,' + btoa(wholeHtml);
                 tab.token = token;
@@ -130,7 +144,6 @@
 
             $scope.saveTabsToLocal = function () {
                 $scope.tabs.forEach(function (tab) {
-                    delete tab.token;
                     delete tab.log;
                     delete tab.iframeSrc;
                 });
@@ -144,7 +157,7 @@
             };
 
             window.onmessage = function (e) {
-                tabs.forEach(function tabMessage(tab) {
+                $scope.tabs.forEach(function tabMessage(tab) {
                     if (tab.token == e.data.token) {
                         $scope.$apply(function () {
                             tab.log += e.data.message + '\n';
