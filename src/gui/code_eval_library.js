@@ -1,5 +1,27 @@
 window.onload = main;
 
+if (!Array.prototype.removeAll) {
+    Array.prototype.removeAll = function (predicate) {
+        if (this == null) {
+            throw new Error("Array.prototype.remove called on null or undefined");
+        }
+        if (typeof predicate !== 'function') {
+            throw new Error("predicate must be a function");
+        }
+        var thisArg = arguments[1];
+        var list = Object(this);
+        var elemensToRemove = [];
+        for (var i = 0; i < list.length; ++i) {
+            if (predicate.call(thisArg, list[i], i, list)) {
+                elemensToRemove.push(i);
+            }
+        }
+        while (elemensToRemove.length) {
+            list.splice(elemensToRemove.pop(), 1);
+        }
+    };
+}
+
 var Console = function () {
     'use strict';
 
@@ -38,8 +60,8 @@ function main(argument) {
     function setFunc(array, name, remove) {
         window[name] = function (func, time) {
             var cancelId = old[name](function () {
-                timeouts = timeouts.filter(function (elem) {
-                    return remove && elem.func != func;
+                array.removeAll(function (elem) {
+                    return remove && elem.func == func;
                 });
                 func();
             }, time);
@@ -50,6 +72,7 @@ function main(argument) {
                 cancelId: cancelId,
                 paused: false
             });
+            window.console.log(name, cancelId);
             return cancelId;
         };
     }
@@ -61,8 +84,8 @@ function main(argument) {
                     old[name](elem.cancelId);
                 }
             });
-            array = array.filter(function (elem) {
-                return elem.userCancelId != cancelId;
+            array.removeAll(function (elem) {
+                return elem.userCancelId == cancelId;
             });
         };
     }
@@ -79,6 +102,7 @@ function main(argument) {
     function stopFunc(array, name) {
         array.forEach(function (elem) {
             if (!elem.paused) {
+                window.console.log(name, elem.cancelId);
                 old[name](elem.cancelId);
                 elem.paused = true;
             }
