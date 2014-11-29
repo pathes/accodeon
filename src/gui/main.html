@@ -80,7 +80,10 @@
                         <div layout="vertical" flex class="layout-content">
                             <iframe frameborder="0" class="acc-file-result" ng-src="{{ tab.iframeSrc }}" flex sandbox="allow-scripts allow-popups"></iframe>
                             <pre class="acc-file-console" ng-class="{'acc-file-console-shown': consoleShown}" flex>{{ tab.log }}</pre>
-                            <md-switch aria-label="Toggle console" ng-model="consoleShown">Show console</md-switch>
+                            <div layout="column">
+                                <md-switch flex aria-label="Toggle console" ng-model="consoleShown">Show console</md-switch>
+                                <md-switch flex aria-label="Toggle execution" ng-model="tab.scriptExecution" ng-change="toggleExecution(tab)">Toggle execution</md-switch>
+                            </div>
                         </div>
                     </div>
                 </md-content>

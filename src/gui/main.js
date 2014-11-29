@@ -59,7 +59,6 @@
         .controller('tabsCtrl', function ($scope, $http, $q, $mdDialog, $mdSidenav, $interval, filesService,
                                           utilsService) {
             var storedTabs = localStorage.getItem('tabs');
-
             if (storedTabs) {
                 $scope.tabs = JSON.parse(storedTabs);
             } else {
@@ -77,11 +76,13 @@
             $scope.selectedIndex = 0;
 
             $scope.announceSelected = function (tab) {
-                console.log("select tab", $scope.tabs.indexOf(tab));
             };
 
             $scope.announceDeselected = function (tab) {
-                console.log("deselected tab", $scope.tabs.indexOf(tab));
+                tab.scriptExecution = false;
+                if (tab.window) {
+                    tab.window.postMessage({type: 'stop'}, '*');
+                }
             };
 
             $scope.addTab = function (name, content) {
@@ -92,6 +93,7 @@
                     iframeSrc: 'data:text/plain;utf8,',
                     disabled: false,
                     token: utilsService.generateToken(),
+                    scriptExecution: false
                 });
             };
 
@@ -120,6 +122,7 @@
                 tab.iframeSrc = 'data:text/html;utf8;base64,' + btoa(wholeHtml);
                 tab.token = token;
                 tab.log = '';
+                tab.scriptExecution = true;
             };
 
             $scope.aceLoaded = function(editor) {
@@ -146,6 +149,8 @@
                 $scope.tabs.forEach(function (tab) {
                     delete tab.log;
                     delete tab.iframeSrc;
+                    delete tab.scriptExecution;
+                    delete tab.window;
                 });
                 localStorage.setItem('tabs', JSON.stringify($scope.tabs));
             };
@@ -160,10 +165,30 @@
                 $scope.tabs.forEach(function tabMessage(tab) {
                     if (tab.token == e.data.token) {
                         $scope.$apply(function () {
-                            tab.log += e.data.message + '\n';
+                            switch (e.data.type) {
+                                case 'log':
+                                    tab.log += e.data.message + '\n';
+                                    break;
+                                case 'init':
+                                    tab.window = e.source;
+                                    tab.window.postMessage({type: 'start'}, '*');
+                                    break;
+                                default:
+                                    console.warn("Got message without type");
+                            }
                         });
                     }
                 });
+            };
+
+            $scope.toggleExecution = function (tab) {
+                if (tab.window) {
+                    if (tab.scriptExecution) {
+                        tab.window.postMessage({type: 'start'}, '*');
+                    } else {
+                        tab.window.postMessage({type: 'stop'}, '*');
+                    }
+                }
             };
 
             $scope.saveTab = function (ev) {
