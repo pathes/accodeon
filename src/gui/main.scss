@@ -11,8 +11,8 @@ html, body {
 md-content.available-file-list {
     height: calc(100% - 64px);
 
-    button {
-        min-height: 30px;
+    md-button, button {
+        min-height: 48px;
     }
 }
 
